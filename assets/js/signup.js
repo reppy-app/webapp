@@ -15,5 +15,10 @@ function createUser(event) {
             email: $('#inputEmail').val(),
             password: $('#inputPassword').val()
         }
-    })
+    }).done(function() {
+        alert("User created");
+    }).fail(function(err) {
+        console.log(err)
+        alert("Fail to create");
+    });
 }
