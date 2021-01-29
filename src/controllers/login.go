@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"net/http"
 	"webapp/src/config"
+	"webapp/src/cookies"
+	"webapp/src/models"
 	"webapp/src/responses"
 )
 
-// CreateUser calls the API to create an user on database.
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+// Signin uses email and password to authenticate the user on application.
+func Signin(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	user, err := json.Marshal(map[string]string{
@@ -22,7 +24,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := fmt.Sprintf("%s/users", config.APIURL)
+	url := fmt.Sprintf("%s/login", config.APIURL)
 	response, err := http.Post(url, "application/json", bytes.NewBuffer(user))
 	if err != nil {
 		responses.JSON(w, http.StatusInternalServerError, responses.ErrorAPI{Error: err.Error()})
@@ -34,5 +36,17 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		responses.HandleStatusCodeError(w, response)
 		return
 	}
-	responses.JSON(w, response.StatusCode, nil)
+
+	var dataAuthentication models.Authentication
+	if err = json.NewDecoder(response.Body).Decode(&dataAuthentication); err != nil {
+		responses.JSON(w, http.StatusUnprocessableEntity, responses.ErrorAPI{Error: err.Error()})
+		return
+	}
+
+	if err = cookies.Save(w, dataAuthentication.ID, dataAuthentication.Token); err != nil {
+		responses.JSON(w, http.StatusUnprocessableEntity, responses.ErrorAPI{Error: err.Error()})
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, nil)
 }
