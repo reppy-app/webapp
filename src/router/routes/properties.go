@@ -12,4 +12,10 @@ var routesProperties = []Route{
 		Handler:     controllers.CreateProperty,
 		RequireAuth: true,
 	},
+	{
+		URI:         "/properties/{{propertyId}}/edit",
+		Method:      http.MethodGet,
+		Handler:     controllers.LoadEditPropertyPage,
+		RequireAuth: true,
+	},
 }

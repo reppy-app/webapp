@@ -21,6 +21,7 @@ func Configure(router *mux.Router) *mux.Router {
 	routes = append(routes, routesUsers...)
 	routes = append(routes, routeHome)
 	routes = append(routes, routesProperties...)
+	routes = append(routes, routeLogout)
 
 	for _, route := range routes {
 

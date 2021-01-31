@@ -10,7 +10,7 @@
     <div id="page-content">
     {{ template "header" }}
         <!-- Page Content -->
-        <div class="container">
+        <main class="container mt-4">
             <form id="create-reppy">
                 <h4>Criar república</h4>
                 <div class="form-group">
@@ -24,21 +24,20 @@
                 <button class="btn btn-lg btn-primary btn-block btn-login text-uppercase font-weight-bold mb-2" type="submit">Criar</button>
             </form>
 
-            <div class="row">
             {{ range .Properties }}
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card border-0 shadow">
-                        <img src="https://source.unsplash.com/TMgQMXoglsM/500x350" class="card-img-top" alt="...">
-                        <div class="card-body text-center">
-                            <h5 class="card-title mb-0">{{ .Name }}</h5>
-                            <div class="card-text text-black-50">R${{ .Price }}</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="card mt-1">
+				<div class="card-body">
+                    {{ .Name }} - Criado em {{ .CreatedAt.Format "02/01/2006" }}
+                    <br />R${{ .Price }}
+                    {{ if (eq .UserID $.UserID) }}
+                    Botões
+                    {{ else }}
+                    Sem botões
+                    {{ end }}
+				</div>
+			</div>
             {{ end }}
-            </div>
-        </div>
-        <!-- /.container -->
+        </main>
     </div>
     {{ template "footer" }}
     {{ template "scripts" }}

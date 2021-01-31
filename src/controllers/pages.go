@@ -11,6 +11,8 @@ import (
 	"webapp/src/requests"
 	"webapp/src/responses"
 	"webapp/src/utils"
+
+	"github.com/gorilla/mux"
 )
 
 // LoadLoginPage load login page.
@@ -53,4 +55,35 @@ func LoadHome(w http.ResponseWriter, r *http.Request) {
 		Properties: properties,
 		UserID:     userID,
 	})
+}
+
+// LoadEditPropertyPage load page to edit property.
+func LoadEditPropertyPage(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	propertyID, err := strconv.ParseUint(params["propertyId"], 10, 64)
+	if err != nil {
+		responses.JSON(w, http.StatusBadRequest, responses.ErrorAPI{Error: err.Error()})
+		return
+	}
+
+	url := fmt.Sprintf("%s/properties/%d", config.APIURL, propertyID)
+	response, err := requests.AuthenticatedRequest(r, http.MethodGet, url, nil)
+	if err != nil {
+		responses.JSON(w, http.StatusInternalServerError, responses.ErrorAPI{Error: err.Error()})
+		return
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode >= 400 {
+		responses.HandleStatusCodeError(w, response)
+		return
+	}
+
+	var property models.Property
+	if err := json.NewDecoder(response.Body).Decode(&property); err != nil {
+		responses.JSON(w, http.StatusUnprocessableEntity, responses.ErrorAPI{Error: err.Error()})
+		return
+	}
+
+	utils.ExecuteTemplate(w, "edit-property.html", property)
 }
